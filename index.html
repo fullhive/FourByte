@@ -1,0 +1,98 @@
+<html lang="en" ng-app="app" ng-controller="AppController">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four Bytes</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+<script src="assets/js/angular.min.js"></script> 
+<script src="assets/js/codes.js"></script> 
+</head>
+
+
+<body style="padding-top: 40px">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-6">
+				<form class="form-horizontal">
+  					<div class="form-group">
+    					<label for="unencrypted" class="col-sm-2 control-label"></label>
+    					<div class="col-sm-10">
+      						<textarea ng-model="unencryptedText" id="unencrypted" class="form-control" rows="10"></textarea>
+    					</div>
+  					</div>
+  					<div class="form-group">
+    					<div class="col-sm-offset-2 col-sm-10">
+      						<button ng-click="startEncrypting()" class="btn btn-default">Encrypt</button>
+    					</div>
+  					</div>
+  				</form>
+			</div>
+			<div class="col-xs-6">
+				<p>
+					Put any text into the box on the left and then click the Encrypt button. This app will encrypt at 4-bytes per character to a javascript array which will be shown below in two different ways. The first is the array combined into a readable string of numbers corresponding to the 4-byte encrypted array. The second is the actual array that was created. To decrypt, click on the Decrypt button below.
+				</p>
+				<p ng-if="encryptedArray.length > 0">
+					<h5 class="text-primary" ng-if="encryptedArray.length > 0">Encrypted String <small>Truncated</small></h5>
+					<span ng-repeat="code in encryptedArray track by $index" ng-show="$index<10">{{code/1000 | number:0}}</span>...
+				</p>
+				<p ng-if="encryptedArray.length > 0">
+					<h5 class="text-primary" ng-if="encryptedArray.length > 0">Encrypted Array <small>Truncated</small></h5>
+					{{encryptedArray | limitTo:4}}
+				</p>
+				<p ng-if="encryptedArray.length > 0">
+					<button ng-click="startDecrypting()" class="btn btn-default">Decrypt</button>
+				</p>
+				<p ng-if="decryptedArray.length > 0">
+					<h5 class="text-primary" ng-if="decryptedArray.length > 0">Decrypted String</h5>
+					<span ng-repeat="letter in decryptedArray track by $index">{{letter}}</span>
+				</p>
+			</div>
+		</div>
+	</div>
+	<div class="row" style="margin-top: 60px">
+			<div class="col-xs-12 text-center">
+				<p style="margin-bottom: 40px">
+					<img src="http://www.fullhive.com/assets/img/fullhiver.jpg" class="img-responsive img-circle center-block" style="max-width: 160px">
+				</p>
+				<p>
+					As with all projects at Full Hive, if you find a use for this please use it. All projects here are just for fun and usually just the end result of dumb ideas.
+				</p>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script>
+var app = angular.module('app', []);
+
+app.controller('AppController', function($scope) {
+	$scope.unencryptedText = '';
+	$scope.decryptedArray = [];
+	$scope.encryptedArray = [];
+	$scope.characterArray = codes;
+	$scope.startEncrypting = function() {
+		newString = $scope.unencryptedText.replace(/"/g, "'").replace(/\\/g, "|").replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+		letters = newString.split('');
+		angular.forEach(letters, function(letter) {
+			for (var code in codes) {
+    			if (codes[code].character == letter) {
+      				$scope.encryptedArray.push(codes[code].code);
+      				break;
+    			}
+  			}
+		});
+	};
+	$scope.startDecrypting = function() {
+		angular.forEach($scope.encryptedArray, function(encryptedLetter) {
+			for (var code in codes) {
+    			if (codes[code].code == encryptedLetter) {
+      				$scope.decryptedArray.push(codes[code].character);
+      				break;
+    			}
+  			}
+		});
+	};
+});
+</script>
+
+</html>
